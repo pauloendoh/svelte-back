@@ -6,5 +6,8 @@
     "builder": "swc",
     "typeCheck": true,
     "deleteOutDir": true
+  },
+  "generateOptions": {
+    "spec": false
   }
 }

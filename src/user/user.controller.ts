@@ -1,50 +1,36 @@
-import { Controller, Inject } from '@nestjs/common';
-import { ServerInferResponses } from '@ts-rest/core';
+import { Controller, Inject } from '@nestjs/common'
+import { ServerInferResponses } from '@ts-rest/core'
 import {
   nestControllerContract,
   NestRequestShapes,
   TsRest,
-  TsRestRequest,
-} from '@ts-rest/nest';
-import { DbProvider, IDbProvider } from 'src/database/database.module';
-import { d } from 'src/database/drizzle/d';
-import { userContract } from './user.contract';
+} from '@ts-rest/nest'
+import {
+  DatabaseProvider,
+  IDatabaseProvider,
+} from 'src/database/database.module'
+import { getAllUsers200ResponseItemSchema, userC } from './user.c'
 
-const c = nestControllerContract(userContract);
+const c = nestControllerContract(userC)
 
-type RequestShapes = NestRequestShapes<typeof c>;
+type RequestShapes = NestRequestShapes<typeof c>
 
-type CreateUserResponse = ServerInferResponses<typeof userContract.createUser>;
-type GetAllUsersResponse = ServerInferResponses<
-  typeof userContract.getAllUsers
->;
+type GetAllUsersResponse = ServerInferResponses<typeof userC.getAllUsers>
 
 @Controller()
 export class UserController {
   constructor(
-    @Inject(DbProvider)
-    private readonly db: IDbProvider,
+    @Inject(DatabaseProvider)
+    private readonly db: IDatabaseProvider,
   ) {}
-
-  @TsRest(c.createUser)
-  async createUser(
-    @TsRestRequest() { body }: RequestShapes['createUser'],
-  ): Promise<CreateUserResponse> {
-    const [user] = await this.db.insert(d.users).values(body).returning();
-
-    return {
-      body: user,
-      status: 201,
-    };
-  }
 
   @TsRest(c.getAllUsers)
   async getAllUsers(): Promise<GetAllUsersResponse> {
-    const users = await this.db.query.users.findMany();
+    const users = await this.db.query.users.findMany()
 
     return {
-      body: users,
+      body: users.map((user) => getAllUsers200ResponseItemSchema.parse(user)),
       status: 200,
-    };
+    }
   }
 }

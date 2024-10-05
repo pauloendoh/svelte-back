@@ -5,7 +5,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'eslint-plugin-neverthrow'],
   extends: ['plugin:@typescript-eslint/recommended'],
   root: true,
   env: {
@@ -20,5 +20,6 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-empty-object-type': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
   },
-};
+}

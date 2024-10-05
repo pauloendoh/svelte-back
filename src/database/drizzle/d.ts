@@ -1,3 +1,3 @@
-import * as drizzleSchemas from './drizzle.schema';
+import * as drizzleSchemas from './drizzle.tables.schemas'
 
-export const d = drizzleSchemas;
+export const d = drizzleSchemas

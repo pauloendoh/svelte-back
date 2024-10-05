@@ -1,11 +1,11 @@
-import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
-import { generateOpenApi } from '@ts-rest/open-api';
-import { AppModule } from './app.module';
-import { contract } from './contract';
+import { NestFactory } from '@nestjs/core'
+import { SwaggerModule } from '@nestjs/swagger'
+import { generateOpenApi } from '@ts-rest/open-api'
+import { AppModule } from './app.module'
+import { contract } from './contract'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule)
 
   const document = generateOpenApi(
     contract,
@@ -18,16 +18,16 @@ async function bootstrap() {
     {
       setOperationId: true,
     },
-  );
+  )
 
   SwaggerModule.setup('/swagger', app, document, {
     yamlDocumentUrl: '/swagger.yaml',
-  });
+  })
 
   app.enableCors({
     origin: '*',
-  });
+  })
 
-  await app.listen(3123);
+  await app.listen(3123)
 }
-bootstrap();
+bootstrap()
