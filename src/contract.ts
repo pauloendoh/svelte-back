@@ -1,5 +1,6 @@
 import { initContract } from '@ts-rest/core';
 import { z } from 'zod';
+import { userContract } from './user/user.contract';
 
 const PostSchema = z.object({
   id: z.string(),
@@ -44,4 +45,5 @@ export const postContract = c.router({
 
 export const contract = c.router({
   posts: postContract,
+  users: userContract,
 });
