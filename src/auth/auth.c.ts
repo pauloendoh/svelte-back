@@ -2,19 +2,20 @@ import { initContract } from '@ts-rest/core'
 import { z } from 'zod'
 import { SignUp409ErrorMessage } from './handlers/sign-up/sign-up.handler'
 import { signUpInputSchema } from './handlers/sign-up/sign-up.input'
-import { signUpOutputSchema } from './handlers/sign-up/sign-up.output'
+import { signUpLogInOutputSchema } from './types/sign-up-log-in.output'
 
 const c = initContract()
 
 export const authC = c.router({
   signUp: {
-    summary: 'Create user account',
     method: 'POST',
+    summary: 'Create user account',
     path: '/sign-up',
-    responses: {
-      201: signUpOutputSchema,
-      409: z.nativeEnum(SignUp409ErrorMessage),
-    },
     body: signUpInputSchema,
+    responses: {
+      201: signUpLogInOutputSchema,
+      409: z.nativeEnum(SignUp409ErrorMessage),
+      400: z.object({ message: z.string() }),
+    },
   },
 })

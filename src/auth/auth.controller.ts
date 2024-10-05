@@ -11,7 +11,7 @@ import { SignUpHandler } from './handlers/sign-up/sign-up.handler'
 
 const c = nestControllerContract(authC)
 
-type RequestC = NestRequestShapes<typeof c>
+type ReqShape = NestRequestShapes<typeof c>
 
 type SignUpResponse = ServerInferResponses<typeof authC.signUp>
 
@@ -21,9 +21,9 @@ export class AuthController {
 
   @TsRest(c.signUp)
   async signUp(
-    @TsRestRequest() { body }: RequestC['signUp'],
+    @TsRestRequest() { body }: ReqShape['signUp'],
   ): Promise<SignUpResponse> {
-    const result = await this.signUpHandler.exec(body)
+    const result = await this.signUpHandler.try(body)
 
     if (result.isErr()) {
       return {

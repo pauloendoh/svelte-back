@@ -1,10 +1,11 @@
-import { config } from 'dotenv';
-import { z } from 'zod';
+import { config } from 'dotenv'
+import { z } from 'zod'
 
-config();
+config()
 
 const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
-});
+  JWT_SECRET: z.string().min(1),
+})
 
-export const myEnvs = envSchema.parse(process.env);
+export const myEnvs = envSchema.parse(process.env)
