@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const signUpLogInOutputSchema = z.object({
+export const authUserOutputSchema = z.object({
   id: z.number(),
   username: z.string(),
   email: z.string(),
@@ -8,4 +8,4 @@ export const signUpLogInOutputSchema = z.object({
   tokenExpiresAt: z.string().date(),
 })
 
-export type SignUpLogInOutput = z.infer<typeof signUpLogInOutputSchema>
+export type AuthUserOutput = z.infer<typeof authUserOutputSchema>

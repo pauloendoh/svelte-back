@@ -51,4 +51,17 @@ export class UserRepository {
 
     return user
   }
+
+  async findByUserId(userId: number) {
+    const [user] = await this.dbWrapper.db
+      .select()
+      .from(d.users)
+      .where(eq(d.users.id, userId))
+
+    if (!user) {
+      return null
+    }
+
+    return user
+  }
 }

@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { err, ok, ResultAsync } from 'neverthrow'
-import { createHmac, randomBytes } from 'node:crypto'
+import { randomBytes } from 'node:crypto'
+import { AuthUserOutput } from 'src/auth/types/auth-user.output'
 import { UserRepository } from 'src/user/repository/user.repository'
-import { MyResultAsyncHandler } from 'src/utils/types/my-handlers'
-import { SignUpLogInOutput } from '../../types/sign-up-log-in.output'
-import { GetSignInTokenHandler } from '../get-sign-in-token/get-sign-in-token.handler'
+import { AsyncResultHandler } from 'src/utils/types/my-handlers'
+import { HashPasswordHandler } from '../hash-password/hash-password-handler'
+import { SignUserJwtHandler } from '../sign-user-jwt/sign-user-jwt.handler'
 import { SignUpInput } from './sign-up.input'
 
 export enum SignUp409ErrorMessage {
@@ -13,15 +14,16 @@ export enum SignUp409ErrorMessage {
 }
 
 @Injectable()
-export class SignUpHandler implements MyResultAsyncHandler {
+export class SignUpHandler implements AsyncResultHandler {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly getSignInTokenHandler: GetSignInTokenHandler,
+    private readonly getSignInTokenHandler: SignUserJwtHandler,
+    private readonly hashPasswordHandler: HashPasswordHandler,
   ) {}
 
   async try(
     input: SignUpInput,
-  ): Promise<ResultAsync<SignUpLogInOutput, SignUp409ErrorMessage>> {
+  ): Promise<ResultAsync<AuthUserOutput, SignUp409ErrorMessage>> {
     const emailExists = await this.userRepo.findUserByEmail(input.email)
 
     if (emailExists) {
@@ -36,7 +38,10 @@ export class SignUpHandler implements MyResultAsyncHandler {
     }
 
     const salt = randomBytes(16).toString('hex')
-    const hashedPassword = this.#hashPassword(input.password1, salt)
+    const hashedPassword = this.hashPasswordHandler.exec({
+      password: input.password1,
+      salt,
+    })
 
     const user = await this.userRepo.createUser({
       email: input.email,
@@ -45,21 +50,17 @@ export class SignUpHandler implements MyResultAsyncHandler {
       salt,
     })
 
-    const { token, expiresAt } = this.getSignInTokenHandler.exec(user.id)
+    const { token, tokenExpiresAt: expiresAt } =
+      this.getSignInTokenHandler.exec({
+        userId: user.id,
+      })
 
     return ok({
       email: user.email,
       id: user.id,
       token,
-      tokenExpiresAt: expiresAt.toISOString(),
+      tokenExpiresAt: expiresAt,
       username: user.username,
     })
-  }
-
-  #hashPassword(password: string, salt: string) {
-    const hashedPassword = createHmac('sha512', salt)
-      .update(password)
-      .digest('hex')
-    return hashedPassword
   }
 }
