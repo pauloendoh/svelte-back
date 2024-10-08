@@ -45,6 +45,8 @@ export const todos = pgTable('todos', {
     .$onUpdate(() => new Date()),
 })
 
+export type TodoDb = typeof todos.$inferSelect
+
 export const todosRelations = relations(todos, ({ one }) => ({
   user: one(users, {
     fields: [todos.userId],

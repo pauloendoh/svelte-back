@@ -8,6 +8,8 @@ import {
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator'
 import { UserDb } from 'src/database/drizzle/drizzle.tables.schemas'
 import { MyController } from 'src/utils/decorators/my-controller'
+import { TodoErrorMessage } from './enums/todo-error.message'
+import { UpdateTodoHandler } from './handler/update-todo/update-todo.handler'
 import { todoC } from './todo.c'
 import { TodoRepository } from './todo.repository'
 
@@ -19,7 +21,10 @@ type GetUserTodos = ServerInferResponses<typeof todoC.getUserTodos>
 
 @MyController()
 export class TodoController {
-  constructor(private readonly todoRepository: TodoRepository) {}
+  constructor(
+    private readonly todoRepository: TodoRepository,
+    private readonly updateTodoHandler: UpdateTodoHandler,
+  ) {}
 
   @TsRest(c.getUserTodos)
   async getUserTodos(
@@ -39,14 +44,46 @@ export class TodoController {
     user: UserDb,
     @TsRestRequest() { body }: ReqShape['createTodo'],
   ): Promise<ServerInferResponses<typeof todoC.createTodo>> {
-    const todo = await this.todoRepository.createTodo({
+    const createdTodo = await this.todoRepository.createTodo({
       description: body.description,
       userId: user.id,
     })
 
     return {
       status: 201,
-      body: todo,
+      body: createdTodo,
+    }
+  }
+
+  @TsRest(c.updateTodo)
+  async updateTodo(
+    @CurrentUser()
+    requester: UserDb,
+    @TsRestRequest() { body, params }: ReqShape['updateTodo'],
+  ): Promise<ServerInferResponses<typeof todoC.updateTodo>> {
+    const result = await this.updateTodoHandler.try({
+      data: body,
+      requesterId: requester.id,
+      todoId: params.todoId,
+    })
+
+    if (result.isErr()) {
+      if (result.error === TodoErrorMessage.TODO_NOT_FOUND) {
+        return {
+          status: 404,
+          body: result.error,
+        }
+      }
+
+      return {
+        status: 403,
+        body: result.error,
+      }
+    }
+
+    return {
+      status: 200,
+      body: result.value,
     }
   }
 }

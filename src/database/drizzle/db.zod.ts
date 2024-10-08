@@ -2,10 +2,11 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
 import { d } from './d'
 
 export const dbZod = {
-  users: {
+  user: {
     insertSchema: createInsertSchema(d.users),
   },
-  todos: {
+  todo: {
     selectSchema: createSelectSchema(d.todos),
+    insertSchema: createInsertSchema(d.todos),
   },
 }
