@@ -5,23 +5,23 @@ import { UserRepository } from 'src/user/repository/user.repository'
 import { AsyncResultHandler } from 'src/utils/types/my-handlers'
 import { HashPasswordHandler } from '../hash-password/hash-password-handler'
 import { SignUserJwtHandler } from '../sign-user-jwt/sign-user-jwt.handler'
-import { SignInInput } from './sign-in.input'
+import { LogInInput } from './log-in.input'
 
-export enum SignInErrorMessage {
+export enum LogInErroMessage {
   invalidUsernameEmailOrPassword = 'Invalid username, email, or password.',
 }
 
 @Injectable()
-export class SignInHandler implements AsyncResultHandler {
+export class LogInHandler implements AsyncResultHandler {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly getSignInTokenHandler: SignUserJwtHandler,
+    private readonly signUserJwtHandler: SignUserJwtHandler,
     private readonly hashPasswordHandler: HashPasswordHandler,
   ) {}
 
   async try(
-    input: SignInInput,
-  ): Promise<ResultAsync<AuthUserOutput, SignInErrorMessage>> {
+    input: LogInInput,
+  ): Promise<ResultAsync<AuthUserOutput, LogInErroMessage>> {
     const byEmail = await this.userRepo.findUserByEmail(input.usernameOrEmail)
     const byUsername = await this.userRepo.findUserByUsername(
       input.usernameOrEmail,
@@ -30,7 +30,7 @@ export class SignInHandler implements AsyncResultHandler {
     const foundUser = byEmail || byUsername
 
     if (!foundUser) {
-      return err(SignInErrorMessage.invalidUsernameEmailOrPassword)
+      return err(LogInErroMessage.invalidUsernameEmailOrPassword)
     }
 
     const hashedPassword = this.hashPasswordHandler.exec({
@@ -39,10 +39,10 @@ export class SignInHandler implements AsyncResultHandler {
     })
 
     if (hashedPassword !== foundUser.password) {
-      return err(SignInErrorMessage.invalidUsernameEmailOrPassword)
+      return err(LogInErroMessage.invalidUsernameEmailOrPassword)
     }
 
-    const { token, tokenExpiresAt } = this.getSignInTokenHandler.exec({
+    const { token, tokenExpiresAt } = this.signUserJwtHandler.exec({
       userId: foundUser.id,
     })
 

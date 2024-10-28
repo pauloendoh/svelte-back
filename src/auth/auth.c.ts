@@ -1,8 +1,8 @@
 import { initContract } from '@ts-rest/core'
 import { applyRequiredUserMetadata } from 'src/utils/types/ts-rest/apply-required-user-metadata'
 import { z } from 'zod'
-import { SignInErrorMessage } from './handlers/sign-in/sign-in.handler'
-import { signInInputSchema } from './handlers/sign-in/sign-in.input'
+import { LogInErroMessage } from './handlers/log-in/log-in.handler'
+import { logInInputSchema } from './handlers/log-in/log-in.input'
 import { SignUp409ErrorMessage } from './handlers/sign-up/sign-up.handler'
 import { signUpInputSchema } from './handlers/sign-up/sign-up.input'
 import { authUserOutputSchema } from './types/auth-user.output'
@@ -23,14 +23,14 @@ export const authC = c.router(
         404: z.enum(['Not found']),
       },
     },
-    signIn: {
+    logIn: {
       method: 'POST',
-      summary: 'Sign in user',
-      path: '/sign-in',
-      body: signInInputSchema,
+      summary: 'Log in user',
+      path: '/log-in',
+      body: logInInputSchema,
       responses: {
         200: authUserOutputSchema,
-        400: z.nativeEnum(SignInErrorMessage),
+        400: z.nativeEnum(LogInErroMessage),
       },
     },
     getMe: applyRequiredUserMetadata({

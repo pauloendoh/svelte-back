@@ -9,7 +9,7 @@ import { UserDb } from 'src/database/drizzle/drizzle.tables.schemas'
 import { MyController } from 'src/utils/decorators/my-controller'
 import { authC } from './auth.c'
 import { CurrentUser } from './decorators/current-user.decorator'
-import { SignInHandler } from './handlers/sign-in/sign-in.handler'
+import { LogInHandler } from './handlers/log-in/log-in.handler'
 import { SignUpHandler } from './handlers/sign-up/sign-up.handler'
 import { SignUserJwtHandler } from './handlers/sign-user-jwt/sign-user-jwt.handler'
 
@@ -19,14 +19,14 @@ type ReqShape = NestRequestShapes<typeof c>
 
 type SignUpResponse = ServerInferResponses<typeof authC.signUp>
 type GetMeResponse = ServerInferResponses<typeof authC.getMe>
-type SignInResponse = ServerInferResponses<typeof authC.signIn>
+type LogInResponse = ServerInferResponses<typeof authC.logIn>
 
 @MyController()
 export class AuthController {
   constructor(
     private readonly signUpHandler: SignUpHandler,
     private readonly signUserJwt: SignUserJwtHandler,
-    private readonly signInHandler: SignInHandler,
+    private readonly logInHandler: LogInHandler,
   ) {}
 
   @TsRest(c.signUp)
@@ -48,11 +48,11 @@ export class AuthController {
     }
   }
 
-  @TsRest(c.signIn)
-  async signIn(
-    @TsRestRequest() { body }: ReqShape['signIn'],
-  ): Promise<SignInResponse> {
-    const result = await this.signInHandler.try(body)
+  @TsRest(c.logIn)
+  async logIn(
+    @TsRestRequest() { body }: ReqShape['logIn'],
+  ): Promise<LogInResponse> {
+    const result = await this.logInHandler.try(body)
 
     if (result.isErr()) {
       return {

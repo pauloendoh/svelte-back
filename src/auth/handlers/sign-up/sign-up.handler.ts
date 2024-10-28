@@ -17,7 +17,7 @@ export enum SignUp409ErrorMessage {
 export class SignUpHandler implements AsyncResultHandler {
   constructor(
     private readonly userRepo: UserRepository,
-    private readonly getSignInTokenHandler: SignUserJwtHandler,
+    private readonly signUserJwtHandler: SignUserJwtHandler,
     private readonly hashPasswordHandler: HashPasswordHandler,
   ) {}
 
@@ -50,10 +50,9 @@ export class SignUpHandler implements AsyncResultHandler {
       salt,
     })
 
-    const { token, tokenExpiresAt: expiresAt } =
-      this.getSignInTokenHandler.exec({
-        userId: user.id,
-      })
+    const { token, tokenExpiresAt: expiresAt } = this.signUserJwtHandler.exec({
+      userId: user.id,
+    })
 
     return ok({
       email: user.email,
